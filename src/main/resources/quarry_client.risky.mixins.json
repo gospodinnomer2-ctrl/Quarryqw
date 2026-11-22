@@ -1,0 +1,8 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "quarry.client.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": ["NameTagMixin", "CrosshairMixin", "HandsMixin", "TabMixin"],
+  "injectors": { "defaultRequire": 0 }
+}

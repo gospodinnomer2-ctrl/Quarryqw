@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "quarry_client",
+  "version": "1.0.0",
+  "name": "Quarry Client",
+  "description": "Quarry client: меню на правый Shift, HUD, NoRender, FullBright, оптимизация и новогодний вайб.",
+  "authors": [
+    "Quarry"
+  ],
+  "license": "All-Rights-Reserved",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "quarry.client.QuarryClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.4",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "mixins": [
+    {
+      "config": "quarry_client.client.mixins.json",
+      "environment": "client"
+    },
+    {
+      "config": "quarry_client.risky.mixins.json",
+      "environment": "client"
+    }
+  ]
+}
