@@ -49,6 +49,9 @@ public class Hud {
     private static String dragId = null;
     private static double lastMx, lastMy;
     private static int SH;
+    // 0 — ничего, 1 — двигаем руки (ЛКМ), 2 — меняем размер рук (ПКМ)
+    private static int handsMode = 0;
+    private static float hx, hy, hs;
 
     private static int clamp(int v, int lo, int hi) {
         return Math.max(lo, Math.min(Math.max(lo, hi), v));
@@ -65,6 +68,10 @@ public class Hud {
         if (!edit) {
             if (dragId != null) {
                 dragId = null;
+                Config.save();
+            }
+            if (handsMode != 0) {
+                handsMode = 0;
                 Config.save();
             }
             wasDown = false;
@@ -108,6 +115,31 @@ public class Hud {
             dragId = null;
             Config.save();
         }
+
+        // руки от первого лица: зажмите ЛКМ на свободном месте и тащите, ПКМ вверх-вниз меняет размер
+        if (Config.get("hands") && over == null && dragId == null && handsMode == 0) {
+            if (down && !wasDown) {
+                handsMode = 1;
+                hx = Config.setting("hands", "x");
+                hy = Config.setting("hands", "y");
+            } else if (rdown && !wasRight) {
+                handsMode = 2;
+                hs = Config.setting("hands", "scale");
+            }
+        }
+        if (handsMode == 1 && down) {
+            hx += (float) (mx - lastMx) * 0.35f;
+            hy -= (float) (my - lastMy) * 0.35f;
+            Config.setSettingQuiet("hands", "x", clamp(Math.round(hx), -50, 50));
+            Config.setSettingQuiet("hands", "y", clamp(Math.round(hy), -50, 50));
+        } else if (handsMode == 2 && rdown) {
+            hs -= (float) (my - lastMy) * 0.5f;
+            Config.setSettingQuiet("hands", "scale", clamp(Math.round(hs), 50, 150));
+        }
+        if ((handsMode == 1 && !down) || (handsMode == 2 && !rdown)) {
+            handsMode = 0;
+            Config.save();
+        }
         if (rdown && !wasRight && over != null && Config.HUD_POS.remove(over.id()) != null) Config.save();
         lastMx = mx;
         lastMy = my;
@@ -131,6 +163,12 @@ public class Hud {
         int w = Ui.w(TR, hint) + 22;
         Ui.rrect(G, SW / 2 - w / 2, 28, w, 19, 9, BG);
         Ui.draw(G, TR, hint, SW / 2 - w / 2 + 11, 34, 0xFFFFFFFF, false);
+        if (Config.get("hands")) {
+            String hh = "Hands: hold LMB on empty space and drag   ·   hold RMB and drag up / down = size";
+            int hw = Ui.w(TR, hh) + 22;
+            Ui.rrect(G, SW / 2 - hw / 2, SH - 48, hw, 19, 9, BG);
+            Ui.draw(G, TR, hh, SW / 2 - hw / 2 + 11, SH - 42, handsMode != 0 ? ACC : 0xFFFFFFFF, false);
+        }
     }
 
     // данные кадра
